@@ -1,24 +1,143 @@
-# GqlLinqLikeBuilder
+# GraphQL Linq-like-Builder
 
-This library was generated with [Angular CLI](https://github.com/angular/angular-cli) version 14.2.0.
+Angular library to generate GraphQL queries through objects builder design pattern.
 
-## Code scaffolding
+<a href="https://www.npmjs.com/package/gql-linq-like-builder">
+<img src="https://img.shields.io/npm/dt/gql-linq-like-builder?label=Downloads" alt="downloads" />
+</a>
 
-Run `ng generate component component-name --project gql-linq-like-builder` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module --project gql-linq-like-builder`.
-> Note: Don't forget to add `--project gql-linq-like-builder` or else it will be added to the default project in your `angular.json` file. 
+<a href="https://replit.com/weipadev/gql-linq-like-builder#index.js">
+<img src="https://img.shields.io/badge/Demo-replit-blue" alt="demo" />
+</a>
 
-## Build
+## Install
 
-Run `ng build gql-linq-like-builder` to build the project. The build artifacts will be stored in the `dist/` directory.
+`npm install gql-linq-like-builder --save`
 
-## Publishing
+## Usage
 
-After building your library with `ng build gql-linq-like-builder`, go to the dist folder `cd dist/gql-linq-like-builder` and run `npm publish`.
+```typescript
+import { QueryBuilder } from "gql-linq-like-builder";
 
-## Running unit tests
+let queryBuilder: QueryBuilder = new QueryBuilder(operation: string, isCollection: boolean);
+```
 
-Run `ng test gql-linq-like-builder` to execute the unit tests via [Karma](https://karma-runner.github.io).
+## Examples
 
-## Further help
+1. <a href="#query">Query</a>
+2. <a href="#query-with-variables">Query (with variables)</a>
+3. <a href="#query-with-nested-fields-selection">Query (with nested fields selection)</a>
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI Overview and Command Reference](https://angular.io/cli) page.
+#### Query:
+
+```javascript
+import { QueryBuilder } from "gql-linq-like-builder";
+
+let queryBuilder: QueryBuilder = new QueryBuilder("user");
+
+queryBuilder.AddColumn("id")
+    .AddColumn("name")
+    .AddColumn("surname");
+
+let query: Query = queryBuilder.GetQuery();
+
+console.log(query.ToString());
+
+// Output
+{
+    user
+    {
+        items {
+            id, 
+            name, 
+            surname
+        }
+    }
+}
+```
+
+[↑ all examples](#examples)
+
+#### Query (with variables):
+
+```javascript
+import { QueryBuilder } from "gql-linq-like-builder";
+
+let queryBuilder: QueryBuilder = new QueryBuilder("user");
+queryBuilder.CreateFilter().AddCondition("id", MatchTypeEnum.EQUALS, 1);
+
+queryBuilder.AddColumn("id")
+    .AddColumn("name")
+    .AddColumn("surname");
+
+let query: Query = queryBuilder.GetQuery();
+
+console.log(query.ToString());
+
+// Output
+{
+    user(where: {id: {
+        eq: 1
+    }})
+    {
+        items {
+            id, 
+            name, 
+            surname
+        }, 
+    }
+}
+```
+
+[↑ all examples](#examples)
+
+#### Query (with nested fields selection):
+
+```javascript
+import { QueryBuilder } from "gql-linq-like-builder";
+
+let queryBuilder: QueryBuilder = new QueryBuilder("user");
+
+queryBuilder.AddColumn("id")
+    .AddColumn("name")
+    .AddColumn("surname")
+    .AddEntity("profile")
+        .AddColumn("id")
+        .AddColumn("description");
+
+let query: Query = queryBuilder.GetQuery();
+
+console.log(query.ToString());
+// Output
+{
+    user
+    {
+        items {
+        id, 
+        name, 
+        surname, 
+        profile {
+            id, 
+            description
+        }
+        }, 
+    }
+}
+```
+
+## Author
+
+- Weipa Automation & Systems - [GitHub](https://github.com/weipadev)
+
+## Contributors
+
+**If you are interested in actively maintaining / enhancing this project, get in <a href="mailto:dev@weipa.com.br">touch</a>.**
+
+- André Weiss - [GitHub](https://github.com/weissandre)
+- [YOUR NAME HERE] - Feel free to contribute to the codebase by resolving any open issues, refactoring, adding new features, writing test cases or any other way to make the project better and helpful to the community. Feel free to fork and send pull requests.
+
+## License
+
+Copyright (c) 2023 Weipa <https://weipa.com.br>
+
+The MIT License (<http://www.opensource.org/licenses/mit-license.php>)
