@@ -30,7 +30,7 @@ export class ComplexFilterField {
     public Name: string; // parent name, ex: { parentName: { parentName: { filters } } }
     public Filters: (FilterField | FilterListField)[] = [];
     public ComplexChildren: ComplexFilterField[] = [];
-    public ListMatchType: ListMatchTypeEnum = ListMatchTypeEnum.SOME;
+    public ListMatchType: ListMatchTypeEnum | undefined = undefined;
     public Operators: Operator[] = [];
 }
 
