@@ -1,18 +1,19 @@
 {
     "name": "@weipadev/gql-linq-like-builder",
-    "version": "0.0.5",
+    "version": "0.0.6",
     "description": "GraphQL Link-like-Builder",
     "repository": {
         "type": "git",
         "url": "git+https://github.com/weipadev/gql-linq-like-builder.git"
     },
-    "main": "./build/index.js",
-    "types": "./build/index.d.ts",
+    "main": "./index.js",
+    "types": "./index.d.ts",
     "files": [
-        "build/**/*"
+        "*"
     ],
     "scripts": {
-        "build": "tsc",
+        "build": "tsc && npm run copy",
+        "copy": "cp package.json build/ && cp README.md build/",
         "watch": "tsc --watch",
         "lint": "tslint --format stylish --project .",
         "test": "jest --config"
