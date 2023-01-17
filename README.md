@@ -1,23 +1,19 @@
 # GraphQL Linq-like-Builder
 
-Angular library to generate GraphQL queries through objects builder design pattern.
+Angular library to generate GraphQL queries through the builder design pattern.
 
-<a href="https://www.npmjs.com/package/gql-linq-like-builder">
-<img src="https://img.shields.io/npm/dt/gql-linq-like-builder?label=Downloads" alt="downloads" />
-</a>
-
-<a href="https://replit.com/weipadev/gql-linq-like-builder#index.js">
-<img src="https://img.shields.io/badge/Demo-replit-blue" alt="demo" />
+<a href="https://www.npmjs.com/package/@weipadev/gql-linq-like-builder">
+<img src="https://img.shields.io/npm/dt/@weipadev/gql-linq-like-builder?label=Downloads" alt="downloads" />
 </a>
 
 ## Install
 
-`npm install gql-linq-like-builder --save`
+`npm install @weipadev/gql-linq-like-builder --save`
 
 ## Usage
 
 ```typescript
-import { QueryBuilder } from "gql-linq-like-builder";
+import { QueryBuilder } from "@weipadev/gql-linq-like-builder";
 
 let queryBuilder: QueryBuilder = new QueryBuilder(operation: string, isCollection: boolean);
 ```
@@ -31,7 +27,7 @@ let queryBuilder: QueryBuilder = new QueryBuilder(operation: string, isCollectio
 #### Query:
 
 ```javascript
-import { QueryBuilder } from "gql-linq-like-builder";
+import { QueryBuilder } from "@weipadev/gql-linq-like-builder";
 
 let queryBuilder: QueryBuilder = new QueryBuilder("user");
 
@@ -61,7 +57,7 @@ console.log(query.ToString());
 #### Query (with variables):
 
 ```javascript
-import { QueryBuilder } from "gql-linq-like-builder";
+import { QueryBuilder } from "@weipadev/gql-linq-like-builder";
 
 let queryBuilder: QueryBuilder = new QueryBuilder("user");
 queryBuilder.CreateFilter().AddCondition("id", MatchTypeEnum.EQUALS, 1);
@@ -94,7 +90,7 @@ console.log(query.ToString());
 #### Query (with nested fields selection):
 
 ```javascript
-import { QueryBuilder } from "gql-linq-like-builder";
+import { QueryBuilder } from "@weipadev/gql-linq-like-builder";
 
 let queryBuilder: QueryBuilder = new QueryBuilder("user");
 
