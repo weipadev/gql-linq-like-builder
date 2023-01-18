@@ -6,7 +6,7 @@
         "type": "git",
         "url": "git+https://github.com/weipadev/gql-linq-like-builder.git"
     },
-    "main": "./index.js",
+    "main": "./index.ts",
     "types": "./index.d.ts",
     "files": [
         "*",
