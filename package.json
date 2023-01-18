@@ -1,6 +1,6 @@
 {
     "name": "@weipadev/gql-linq-like-builder",
-    "version": "0.0.8",
+    "version": "0.0.9",
     "description": "GraphQL Link-like-Builder",
     "repository": {
         "type": "git",
