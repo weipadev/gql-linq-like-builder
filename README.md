@@ -5,6 +5,10 @@ Angular library to generate GraphQL queries through the builder design pattern.
 <a href="https://www.npmjs.com/package/@weipadev/gql-linq-like-builder">
 <img src="https://img.shields.io/npm/dt/@weipadev/gql-linq-like-builder?label=Downloads" alt="downloads" />
 </a>
+<a href=https://stackblitz.com/edit/demo-gql-linq-lke-builder>
+<img src="https://img.shields.io/static/v1?label= &message=StackBlitz&color=blue" />
+
+</a>
 
 ## Install
 
