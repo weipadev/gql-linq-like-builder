@@ -2,8 +2,8 @@
 
 Angular library to generate GraphQL queries through the builder design pattern.
 
-<a href="https://www.npmjs.com/package/@weipadev/gql-linq-like-builder">
-<img src="https://img.shields.io/npm/dt/@weipadev/gql-linq-like-builder?label=Downloads" alt="downloads" />
+<a href="https://www.npmjs.com/package/@weipa/gql-linq-like-builder">
+<img src="https://img.shields.io/npm/dt/@weipa/gql-linq-like-builder?label=Downloads" alt="downloads" />
 </a>
 <a href=https://stackblitz.com/edit/demo-gql-linq-lke-builder>
 <img src="https://img.shields.io/static/v1?label= &message=StackBlitz&color=blue" />
@@ -12,12 +12,12 @@ Angular library to generate GraphQL queries through the builder design pattern.
 
 ## Install
 
-`npm install @weipadev/gql-linq-like-builder --save`
+`npm install @weipa/gql-linq-like-builder --save`
 
 ## Usage
 
 ```typescript
-import { QueryBuilder } from "@weipadev/gql-linq-like-builder";
+import { QueryBuilder } from "@weipa/gql-linq-like-builder";
 
 let queryBuilder: QueryBuilder = new QueryBuilder(operation: string, isCollection: boolean);
 ```
@@ -31,7 +31,7 @@ let queryBuilder: QueryBuilder = new QueryBuilder(operation: string, isCollectio
 #### Query:
 
 ```javascript
-import { QueryBuilder } from "@weipadev/gql-linq-like-builder";
+import { QueryBuilder } from "@weipa/gql-linq-like-builder";
 
 let queryBuilder: QueryBuilder = new QueryBuilder("user");
 
@@ -61,7 +61,7 @@ console.log(query.ToString());
 #### Query (with variables):
 
 ```javascript
-import { QueryBuilder } from "@weipadev/gql-linq-like-builder";
+import { QueryBuilder } from "@weipa/gql-linq-like-builder";
 
 let queryBuilder: QueryBuilder = new QueryBuilder("user");
 queryBuilder.CreateFilter().AddCondition("id", MatchTypeEnum.EQUALS, 1);
@@ -94,7 +94,7 @@ console.log(query.ToString());
 #### Query (with nested fields selection):
 
 ```javascript
-import { QueryBuilder } from "@weipadev/gql-linq-like-builder";
+import { QueryBuilder } from "@weipa/gql-linq-like-builder";
 
 let queryBuilder: QueryBuilder = new QueryBuilder("user");
 
