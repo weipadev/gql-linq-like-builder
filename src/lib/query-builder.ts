@@ -121,6 +121,13 @@ export class QueryBuilder {
 
     return this;
   }
+  
+  /**
+  *	Already have sorting?
+  **/
+  public HasSort() {
+    return this.query.Sort.length > 0;
+  }
 
   /**
    * Create a new parameter in the query.
