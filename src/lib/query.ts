@@ -155,7 +155,7 @@ export class Query {
           queryParameters += "]";
         }
         else {
-          queryParameters += null;
+          queryParameters += "[]";
         }
       }
       else {
