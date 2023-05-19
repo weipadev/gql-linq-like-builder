@@ -4,10 +4,6 @@ import { ComplexFilterField, Filter, FilterField, FilterListField } from "./filt
 import { Operator } from "./filter/filter-builder";
 
 export class Query {
-  public constructor(queryName: string) {
-    this.QueryName = queryName;
-    this.Filter = new Filter();
-  }
 
   public QueryName: string;
   public Parameters: QueryParameter[] = [];
@@ -18,29 +14,50 @@ export class Query {
   public IsCollection: boolean = true;
   public WithCount: boolean = false;
 
+  public Queries: Query[] = [];
+  public IsSubQuery: boolean = false;
+
+  public constructor(queryName: string) {
+    this.QueryName = queryName;
+    this.Filter = new Filter();
+  }
+
+  //#region Members :: ToString()
+
   /**
-   * Return the query string.
-   *
-   * @returns Return the query string.
-   *
-  */
+     * Return the query string.
+     *
+     * @returns Return the query string.
+     *
+    */
   public ToString(): string {
     let parameters = this.assembleParameters();
     parameters = parameters && parameters.length !== 0 ? `(${parameters})` : parameters;
 
-    let query = `
-      {
-        ${this.QueryName}${parameters}{
-          ${this.IsCollection ? `items{
-            ${this.assembleColumns(this.Columns)}
-          }, ${this.WithCount ? "totalCount" : ""}` : this.assembleColumns(this.Columns)}
-        }
-      }`;
+    let query = `${this.QueryName}${parameters}\n{
+      ${this.IsCollection ? `items{
+        ${this.assembleColumns(this.Columns)}
+      }, ${this.WithCount ? "totalCount" : ""}` : this.assembleColumns(this.Columns)}
+    }`;
 
-    return query;
+    if (this.Queries.length > 0) {
+      this.Queries.forEach(otherQuery => {
+        let queryString = otherQuery.ToString();
+        query += `,\n\t\t${queryString}`;
+      });
+    }
+
+    if (this.IsSubQuery) {
+      return query;
+    }
+    else {
+      return `{\n${query}\n}`;
+    }
   }
 
-  //#region 'Montagem da query'
+  //#endregion
+
+  //#region Members 'Assembling' :: assembleColumns(), assemblePagination(), assembleSort(), assembleParameters(), assembleComplexFields(), assembleFilterFields(), assembleFilterMember(), assembleField(), mountValue(), assembleChild()
 
   private assembleColumns(columns: Column[]): string {
     let queryColumns: string = "";
@@ -258,7 +275,6 @@ export class Query {
     return filters;
   }
 
-
   private assembleField(field: FilterField | FilterListField | ComplexFilterField): any {
     if (field instanceof FilterField) {
       let splitedString = [];
@@ -336,6 +352,10 @@ export class Query {
     return assembled;
   }
 
+  //#endregion
+
+  //#region Members 'Operators' :: assembleOperator(), assembleOperators()
+
   private assembleOperator() {
     let assembled = "";
 
@@ -370,12 +390,13 @@ export class Query {
 }
 
 export class QueryParameter {
+
+  public field: string;
+  public value: any;
+
   constructor(field: string, value: any) {
     this.field = field;
     this.value = value;
   }
-
-  public field: string;
-  public value: any;
 }
 
