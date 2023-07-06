@@ -17,10 +17,10 @@ export class Operator {
     public children: Operator[] = [];
 }
 
-export class FilterBuilder {
+export class FilterBuilder<T> {
     private parent: Query;
     private filter: Filter;
-    operatorBuilder: OperatorBuilder | undefined;
+    operatorBuilder: OperatorBuilder<T> | undefined;
 
     public constructor(parent: Query) {
         this.filter = new Filter();
@@ -42,7 +42,7 @@ export class FilterBuilder {
         let operatorIndex = this.filter.Operators.findIndex(o => o.type === type);
 
         if (operatorIndex < 0) {
-            this.operatorBuilder = new OperatorBuilder(this.filter, new Operator(type, filters));
+            this.operatorBuilder = new OperatorBuilder<T>(this.filter, new Operator(type, filters));
         }
 
         return this.operatorBuilder;
@@ -57,8 +57,8 @@ export class FilterBuilder {
      * @returns This instance of FilterBuilder
      *
     */
-    public AddCondition(field: string, match: MatchingTypes, value: any) {
-        this.filter.Fields.push(new FilterField(field, match, value));
+    public AddCondition(field: keyof T, match: MatchingTypes, value: any) {
+        this.filter.Fields.push(new FilterField(field as string, match, value));
         return this;
     }
 
@@ -70,8 +70,8 @@ export class FilterBuilder {
      * @return New instance of ComplexFieldBuilder
      *
     */
-    public AddEntityList(name: string, match: ListMatchTypeEnum) {
-        return new ComplexFieldBuilder(this.filter, name, match);
+    public AddEntityList<S>(name: keyof T, match: ListMatchTypeEnum) {
+        return new ComplexFieldBuilder<S[]>(this.filter, name as string, match);
     }
 
     /**
@@ -81,12 +81,12 @@ export class FilterBuilder {
      * @returns A new ComplexFieldBuilder instance
      *
     */
-    public AddEntity(name: string) {
-        return new ComplexFieldBuilder(this.filter, name);
+    public AddEntity<S>(name: keyof T) {
+        return new ComplexFieldBuilder<S>(this.filter, name as string);
     }
 }
 
-export class OperatorBuilder {
+export class OperatorBuilder<T> {
     private parent: Filter | Operator | ComplexFilterField;
     private operator: Operator;
 
@@ -124,8 +124,8 @@ export class OperatorBuilder {
      * @returns This builder
      *
     */
-    public AddCondition(field: string, match: MatchingTypes, value: any) {
-        this.operator.filters.push(new FilterField(field, match, value));
+    public AddCondition(field: keyof T, match: MatchingTypes, value: any) {
+        this.operator.filters.push(new FilterField(field as string, match, value));
 
         return this;
     }
@@ -138,8 +138,8 @@ export class OperatorBuilder {
      * @returns New ComplexFieldBuilder
      *
     */
-    public AddEntityList(name: string, match: ListMatchTypeEnum) {
-        return new ComplexFieldBuilder(this.operator, name, match);
+    public AddEntityList<S>(name: keyof T, match: ListMatchTypeEnum) {
+        return new ComplexFieldBuilder<S[]>(this.operator, name as string, match);
     }
 
     /**
@@ -150,12 +150,12 @@ export class OperatorBuilder {
      * @returns New ComplexFieldBuilder
      *
     */
-    public AddEntity(name: string) {
-        return new ComplexFieldBuilder(this.operator, name);
+    public AddEntity<S>(name: keyof T) {
+        return new ComplexFieldBuilder<S>(this.operator, name as string);
     }
 }
 
-export class ComplexFieldBuilder {
+export class ComplexFieldBuilder<T> {
     private parent: Filter | ComplexFilterField | Operator;
     private complexField: ComplexFilterField;
 
@@ -179,9 +179,9 @@ export class ComplexFieldBuilder {
      * @returns A new instance of ComplexFieldBuilder
      *
     */
-    public AddEntity(name: string) {
+    public AddEntity(name: keyof T) {
 
-        return new ComplexFieldBuilder(this.complexField, name);
+        return new ComplexFieldBuilder(this.complexField, name as string);
     }
 
     /**
@@ -193,8 +193,8 @@ export class ComplexFieldBuilder {
      * @returns This instance of FilterBuilder
      *
     */
-    public AddEntityList(name: string, match: ListMatchTypeEnum) {
-        return new ComplexFieldBuilder(this.complexField, name, match);
+    public AddEntityList<S>(name: keyof T, match: ListMatchTypeEnum) {
+        return new ComplexFieldBuilder<S[]>(this.complexField, name as string, match);
     }
 
     /**
@@ -206,8 +206,8 @@ export class ComplexFieldBuilder {
      * @returns This builder
      *
     */
-    public AddCondition(field: string, match: MatchingTypes, value: any) {
-        this.complexField.Filters.push(new FilterField(field, match, value));
+    public AddCondition(field: keyof T, match: MatchingTypes, value: any) {
+        this.complexField.Filters.push(new FilterField(field as string, match, value));
         return this;
     }
 

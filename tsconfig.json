@@ -1,12 +1,14 @@
 {
   "compilerOptions": {
     "declaration": true,
-    "module": "commonjs",
+    "module": "ESNext",
     "lib": [
       "es6",
+      "DOM",
       "es2017"
     ],
-    "target": "es5",
+    "target": "ES5",
+    "experimentalDecorators": true,
     "strict": true,
     "sourceMap": true,
     "inlineSources": true,

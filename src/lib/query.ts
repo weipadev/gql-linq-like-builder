@@ -258,7 +258,6 @@ export class Query {
     return filters;
   }
 
-
   private assembleField(field: FilterField | FilterListField | ComplexFilterField): any {
     if (field instanceof FilterField) {
       let splitedString = [];
