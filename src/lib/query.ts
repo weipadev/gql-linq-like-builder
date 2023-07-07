@@ -29,11 +29,6 @@ export class Query {
   public Queries: Query[] = [];
   public IsSubQuery: boolean = false;
 
-  public constructor(queryName: string) {
-    this.QueryName = queryName;
-    this.Filter = new Filter();
-  }
-
   //#region Members :: ToString()
 
   /**

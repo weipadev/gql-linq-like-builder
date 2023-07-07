@@ -215,14 +215,4 @@ export class QueryBuilder<T = any> {
 
   //#endregion
 
-  //#region Members :: HasSort()
-
-  /**
-*	Already have sorting?
-**/
-  public HasSort() {
-    return this.query.Sort.length > 0;
-  }
-
-  //#endregion
 }
