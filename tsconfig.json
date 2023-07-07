@@ -9,6 +9,7 @@
     ],
     "target": "ES5",
     "experimentalDecorators": true,
+    "moduleResolution": "node",
     "strict": true,
     "sourceMap": true,
     "inlineSources": true,
