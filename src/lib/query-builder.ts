@@ -146,7 +146,7 @@ export class QueryBuilder<T = any> {
   *	Already have sorting?
   **/
   public HasSort() {
-    // return this.query.Sort.length > 0;
+    return this.query.Sort.length > 0 || this.query.SortByBuilder.Fields.length > 0;
   }
 
   /**

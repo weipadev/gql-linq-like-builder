@@ -43,13 +43,14 @@ export class Query {
           }, ${this.WithCount ? "totalCount" : ""}` : this.assembleColumns(this.Columns)}
         }
       }`;
+      
 
     return query;
   }
 
   //#region 'Montagem da query'
 
-  private assembleColumns(columns: Column[]): string {
+  protected assembleColumns(columns: Column[]): string {
     let queryColumns: string = "";
 
     columns.forEach((column, index) => {
@@ -68,7 +69,7 @@ export class Query {
     return queryColumns;
   }
 
-  private assembleParameters(): string {
+  protected assembleParameters(): string {
     let queryParameters: string = "";
 
     if (this.Parameters) {
@@ -91,7 +92,7 @@ export class Query {
           param.value.forEach((value, index) => {
             queryParameters += value;
 
-            if (index + 1 <= param.value.length) {
+            if (index + 1 < param.value.length) {
               queryParameters += ",";
             }
           });
@@ -117,7 +118,7 @@ export class Query {
     return this.assemblePagination(queryParameters);
   }
 
-  private assemblePagination(queryParameters?: string): string {
+  protected assemblePagination(queryParameters?: string): string {
     if (this.Pagination) {
       this.Pagination.forEach((param, index) => {
         if (queryParameters && index == 0) {
@@ -135,7 +136,7 @@ export class Query {
     return this.assembleSort(queryParameters);
   }
 
-  private assembleSort(queryParameters?: string): string {
+  protected assembleSort(queryParameters?: string): string {
     
     if (this.SortByBuilder.Fields.length >= 1) {
       queryParameters = this.assembleSortByBuilder(queryParameters);
@@ -185,7 +186,7 @@ export class Query {
     return this.assembleFilterFields(queryParameters);
   }
 
-  private assembleSortByBuilder(queryParameters? : string) {
+  protected assembleSortByBuilder(queryParameters? : string) {
 
     this.SortByBuilder.Fields.forEach((sortField, index) => {
       if (queryParameters && index === 0) {
@@ -213,7 +214,7 @@ export class Query {
     return queryParameters;
   }
 
-  private assembleComplexSort(complexField: ComplexSortField) {
+  protected assembleComplexSort(complexField: ComplexSortField) {
     let assembleComplexSort = "";
     
     complexField.Fields.forEach((complex, i) => {
@@ -244,7 +245,7 @@ export class Query {
     return assembleComplexSort;
   }
 
-  private assembleField(field: FilterField | FilterListField | ComplexFilterField): any {
+  protected assembleField(field: FilterField | FilterListField | ComplexFilterField): any {
     if (field instanceof FilterField) {
       let splitedString = [];
       if (field.Field.includes(".")) {
@@ -292,7 +293,7 @@ export class Query {
     }
   }
 
-  private assembleComplexFields(complexField: ComplexFilterField): string {
+  protected assembleComplexFields(complexField: ComplexFilterField): string {
     let assembledComplexFields = `${complexField.Name}: {`;
 
     if (complexField.ListMatchType) {
@@ -332,7 +333,7 @@ export class Query {
     return assembledComplexFields;
   }
 
-  private assembleFilterFields(queryParameters?: string): any {
+  protected assembleFilterFields(queryParameters?: string): any {
     
     if (this.Filter.Fields.length > 0 || this.Filter.Operators.length > 0) {
       queryParameters += queryParameters != "" ? ", " : "";
@@ -359,7 +360,7 @@ export class Query {
     return queryParameters;
   }
 
-  private assembleFilterMember(items: any[], withBrackets = false) {
+  protected assembleFilterMember(items: any[], withBrackets = false) {
     let filters = "";
 
     items.forEach((element: any, index: number) => {
@@ -377,7 +378,7 @@ export class Query {
     return filters;
   }
 
-  private assembleChild(children: any) {
+  protected assembleChild(children: any) {
     let assembled = "";
     children.forEach((child: Operator | Filter, index: number) => {
       if (child instanceof Operator) {
@@ -397,7 +398,7 @@ export class Query {
     return assembled;
   }
 
-  private assembleOperator() {
+  protected assembleOperator() {
     let assembled = "";
 
     assembled += this.assembleOperators(this.Filter.Operators);
@@ -413,7 +414,7 @@ export class Query {
     return assembled;
   }
 
-  private assembleOperators(operators: Operator[]) {
+  protected assembleOperators(operators: Operator[]) {
     let assembled = "";
     operators.forEach((item, index) => {
 
@@ -427,7 +428,7 @@ export class Query {
     return assembled;
   }
 
-  private mountValue(value: any, isArray: boolean) {
+  protected mountValue(value: any, isArray: boolean) {
 
     if (isArray) {
       return `[${typeof value[0] === "string" ? `"${value}"` : value}]`;
