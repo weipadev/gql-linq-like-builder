@@ -7,7 +7,6 @@ import { SortBuilder } from "./sort/sort-builder";
 export class QueryBuilder<T = any> {
   private query: Query;
   private alreadyInsertedColumns: ColumnBuilder<T>[] = [];
-
   constructor(queryName: string, isCollection: boolean = true, getCount: boolean = false, parameters?: QueryParameter[]) {
     this.query = new Query(queryName);
     this.query.IsCollection = isCollection;
@@ -17,6 +16,8 @@ export class QueryBuilder<T = any> {
       this.query.Parameters = parameters;
     }
   }
+
+  //#region Members :: AddColumn(), AddEntity(), AddNavigation(), AddPagination(), AddSort(), AddParameter(), AddQuery()
 
   /**
    * Creates a new column in the query.
@@ -165,6 +166,27 @@ export class QueryBuilder<T = any> {
   }
 
   /**
+   * Add another query to execution
+   *
+   * @param queryBuilder - The query builder to add
+   * @returns This instance of QueryBuilder.
+   *
+  */
+  public AddQuery(queryBuilder: QueryBuilder) {
+
+    let query = queryBuilder.GetQuery();
+    query.IsSubQuery = true;
+
+    this.query.Queries.push(query);
+
+    return this;
+  }
+
+  //#endregion
+
+  //#region Members :: CreateFilter()
+
+  /**
    * Return the instance of FilterBuilder.
    *
    * @returns Return the instance of FilterBuilder.
@@ -177,6 +199,10 @@ export class QueryBuilder<T = any> {
     return filterBuilder;
   }
 
+  //#endregion
+
+  //#region Members :: GetQuery()
+
   /**
    * Return the query object.
    *
@@ -186,4 +212,17 @@ export class QueryBuilder<T = any> {
   public GetQuery(): Query {
     return this.query;
   }
+
+  //#endregion
+
+  //#region Members :: HasSort()
+
+  /**
+*	Already have sorting?
+**/
+  public HasSort() {
+    return this.query.Sort.length > 0;
+  }
+
+  //#endregion
 }
