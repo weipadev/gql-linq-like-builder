@@ -2,10 +2,11 @@ import { ColumnBuilder } from "./column/column-builder";
 import { SortEnum } from "./enums";
 import { FilterBuilder } from "./filter/filter-builder";
 import { Query, QueryParameter } from "./query";
+import { SortBuilder } from "./sort/sort-builder";
 
-export class QueryBuilder {
+export class QueryBuilder<T = any> {
   private query: Query;
-  private alreadyInsertedColumns: ColumnBuilder[] = [];
+  private alreadyInsertedColumns: ColumnBuilder<T>[] = [];
   constructor(queryName: string, isCollection: boolean = true, getCount: boolean = false, parameters?: QueryParameter[]) {
     this.query = new Query(queryName);
     this.query.IsCollection = isCollection;
@@ -25,8 +26,8 @@ export class QueryBuilder {
    * @returns A new instance of ColumnBuilder
    *
   */
-  public AddColumn(columnName: string): QueryBuilder {
-    new ColumnBuilder(this.query, columnName);
+  public AddColumn(columnName: keyof T): QueryBuilder<T> {
+    new ColumnBuilder(this.query, columnName as string);
 
     return this;
   }
@@ -38,12 +39,12 @@ export class QueryBuilder {
    * @returns A new instance of ColumnBuilder
    *
   */
-  public AddEntity(entityName: string): ColumnBuilder {
+  public AddEntity<S = any>(entityName: keyof T): ColumnBuilder<S> {
 
-    let column = this.alreadyInsertedColumns.find(e => e.column.Name === entityName);
+    let column: ColumnBuilder<S | T> | undefined = this.alreadyInsertedColumns.find(e => e.column.Name === entityName);
 
     if (!column) {
-      column = new ColumnBuilder(this.query, entityName);
+      column = new ColumnBuilder<S>(this.query, entityName as string);
       this.alreadyInsertedColumns.push(column);
     }
 
@@ -54,10 +55,10 @@ export class QueryBuilder {
    * Creates a navigation Entities and Columns in the query.
    *
    * @param entityName - The name of navigation separated by comma and dot for the properties (ex.: client.name,client.address.streetName)
-   * @returns The instance of QueryBuilder
+   * @returns The instance of QueryBuilder<T>
    *
   */
-  public AddNavigation(name: string): QueryBuilder {
+  public AddNavigation(name: string): QueryBuilder<T> {
 
     let viewColumns = name.split(",");
     let self = this;
@@ -68,7 +69,7 @@ export class QueryBuilder {
       if (names.length > 1) {
 
         let dataColumn: any = null;
-        names.forEach(function (columnName, index, array) {
+        names.forEach(function (columnName: any, index, array) {
 
           if (index === array.length - 1) {
             dataColumn.AddColumn(columnName);
@@ -84,7 +85,7 @@ export class QueryBuilder {
         });
       }
       else {
-        const columnName = names[0];
+        const columnName = names[0] as any;
         self.AddColumn(columnName);
       }
     });
@@ -97,10 +98,10 @@ export class QueryBuilder {
    *
    * @param skip - The number of results to skip
    * @param take - The number of results to take
-   * @returns This instance of QueryBuilder.
+   * @returns This instance of QueryBuilder<T>.
    *
   */
-  public AddPagination(skip: number, take: number): QueryBuilder {
+  public AddPagination(skip: number, take: number): QueryBuilder<T> {
     this.query.Pagination = [];
 
     this.query.Pagination.push(new QueryParameter("skip", skip));
@@ -114,13 +115,39 @@ export class QueryBuilder {
    *
    * @param field - The field to sort by
    * @param value - The SortEnum value
-   * @returns This instance of QueryBuilder.
+   * @returns This instance of QueryBuilder<T>.
+   * @deprecated `This method is deprecated, its no safety.`
+   * Use {@link CreateSort()} instead to prevent errors and enable new features
+   * like {@link SortBuilder | SortBuilder}
+   * 
+   * * `Property Repetition`: It may repeat the same property in `order`, which throws a error in request.
    *
   */
-  public AddSort(field: string, value: SortEnum): QueryBuilder {
-    this.query.Sort.push(new QueryParameter(field, value));
+  public AddSort(field: keyof T, value: SortEnum): QueryBuilder<T> {
+    
+    const preSortIndex = this.query.Sort.findIndex(sort => sort.field === field);
+
+    if (preSortIndex != -1) {
+      this.query.Sort[preSortIndex] = new QueryParameter(field as string, value);
+    } else {
+      this.query.Sort.push(new QueryParameter(field as string, value));
+    }
 
     return this;
+  }
+
+  public CreateSort() : SortBuilder<T> {
+
+    let sortBuilder = new SortBuilder<T>(this.query);
+
+    return sortBuilder;
+  }
+  
+  /**
+  *	Already have sorting?
+  **/
+  public HasSort() {
+    return this.query.Sort.length > 0 || this.query.SortByBuilder.Fields.length > 0;
   }
 
   /**
@@ -128,10 +155,10 @@ export class QueryBuilder {
    *
    * @param field - The field
    * @param value - The value
-   * @returns This instance of QueryBuilder.
+   * @returns This instance of QueryBuilder<T>.
    *
   */
-  public AddParameter(field: string, value: any): QueryBuilder {
+  public AddParameter(field: string, value: any): QueryBuilder<T> {
     let param = new QueryParameter(field, value);
     this.query.Parameters.push(param);
 
@@ -165,9 +192,9 @@ export class QueryBuilder {
    * @returns Return the instance of FilterBuilder.
    *
   */
-  public CreateFilter(): FilterBuilder {
+  public CreateFilter(): FilterBuilder<T> {
 
-    let filterBuilder = new FilterBuilder(this.query);
+    let filterBuilder = new FilterBuilder<T>(this.query);
 
     return filterBuilder;
   }

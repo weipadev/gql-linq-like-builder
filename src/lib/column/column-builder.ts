@@ -1,7 +1,7 @@
 import { Query } from "../query";
 import { Column } from "./column";
 
-export class ColumnBuilder {
+export class ColumnBuilder<T = any> {
   public column: Column;
   private parent: Query | Column;
 
@@ -23,8 +23,8 @@ export class ColumnBuilder {
    * @returns This instance of ColumnBuilder
    *
   */
-  public AddColumn(columnName: string): ColumnBuilder {
-    let child: Column = new Column(columnName);
+  public AddColumn(columnName: keyof T): ColumnBuilder<T> {
+    let child: Column = new Column(columnName as string);
     this.column?.Children?.push(child);
 
     return this;
@@ -37,8 +37,8 @@ export class ColumnBuilder {
    * @returns A new instance of ColumnBuilder
    *
   */
-  public AddEntity(entityName: string): ColumnBuilder {
-    let column = new ColumnBuilder(this.column, entityName);
+  public AddEntity<S = any>(entityName: keyof T): ColumnBuilder<S> {
+    let column = new ColumnBuilder<S>(this.column, entityName as string);
 
     return column;
   }
