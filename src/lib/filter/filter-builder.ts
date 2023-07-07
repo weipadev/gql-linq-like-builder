@@ -20,7 +20,7 @@ export class Operator {
 export class FilterBuilder<T = any> {
     private parent: Query;
     private filter: Filter;
-    operatorBuilder: OperatorBuilder<T> | undefined;
+    operatorBuilder!: OperatorBuilder<T>;
 
     public constructor(parent: Query) {
         this.filter = new Filter();
@@ -37,7 +37,7 @@ export class FilterBuilder<T = any> {
      * @returns A new instance of OperatorBuilder
      *
     */
-    public AddOperator(type: OperatorEnum, filters: FilterField[] = []) {
+    public AddOperator(type: OperatorEnum, filters: FilterField[] = []) : OperatorBuilder {
 
         let operatorIndex = this.filter.Operators.findIndex(o => o.type === type);
 
@@ -70,8 +70,8 @@ export class FilterBuilder<T = any> {
      * @return New instance of ComplexFieldBuilder
      *
     */
-    public AddEntityList<S>(name: keyof T, match: ListMatchTypeEnum) {
-        return new ComplexFieldBuilder<S[]>(this.filter, name as string, match);
+    public AddEntityList<S = any>(name: keyof T, match: ListMatchTypeEnum) {
+        return new ComplexFieldBuilder<S>(this.filter, name as string, match);
     }
 
     /**
@@ -138,8 +138,8 @@ export class OperatorBuilder<T = any> {
      * @returns New ComplexFieldBuilder
      *
     */
-    public AddEntityList<S>(name: keyof T, match: ListMatchTypeEnum) {
-        return new ComplexFieldBuilder<S[]>(this.operator, name as string, match);
+    public AddEntityList<S = any>(name: keyof T, match: ListMatchTypeEnum) {
+        return new ComplexFieldBuilder<S>(this.operator, name as string, match);
     }
 
     /**
@@ -193,8 +193,9 @@ export class ComplexFieldBuilder<T = any> {
      * @returns This instance of FilterBuilder
      *
     */
-    public AddEntityList<S>(name: keyof T, match: ListMatchTypeEnum) {
-        return new ComplexFieldBuilder<S[]>(this.complexField, name as string, match);
+    public AddEntityList<S = any>(name: keyof T, match: ListMatchTypeEnum) {
+        return new ComplexFieldBuilder<S
+        >(this.complexField, name as string, match);
     }
 
     /**
