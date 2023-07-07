@@ -2,7 +2,7 @@ import { Query } from "../query";
 import { Column } from "./column";
 
 export class ColumnBuilder<T = any> {
-  private column: Column;
+  public column: Column;
   private parent: Query | Column;
 
   constructor(parentEntity: Query | Column, name: string) {
