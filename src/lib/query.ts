@@ -2,17 +2,24 @@ import { Column } from "./column/column";
 import { MatchTypeEnum } from "./enums";
 import { ComplexFilterField, Filter, FilterField, FilterListField } from "./filter/filter";
 import { Operator } from "./filter/filter-builder";
+import { ComplexSortField, Sort, SortField } from "./sort/sort";
 
 export class Query {
   public constructor(queryName: string) {
     this.QueryName = queryName;
     this.Filter = new Filter();
+    this.SortByBuilder = new Sort();
   }
 
   public QueryName: string;
   public Parameters: QueryParameter[] = [];
   public Pagination: QueryParameter[] = [];
+  
+  /**@deprecated Sort*/
   public Sort: QueryParameter[] = [];
+  /**@new Sort*/
+  public SortByBuilder!: Sort;
+
   public Filter: Filter;
   public Columns: Column[] = [];
   public IsCollection: boolean = true;
@@ -59,69 +66,6 @@ export class Query {
     });
 
     return queryColumns;
-  }
-
-  private assemblePagination(queryParameters?: string): string {
-    if (this.Pagination) {
-      this.Pagination.forEach((param, index) => {
-        if (queryParameters && index == 0) {
-          queryParameters += ", ";
-        }
-
-        queryParameters += `${param.field}: ${param.value}`;
-
-        if (index < this.Pagination.length - 1) {
-          queryParameters += ", ";
-        }
-      });
-    }
-
-    return this.assembleSort(queryParameters);
-  }
-
-  private assembleSort(queryParameters?: string): string {
-    this.Sort.forEach((param, index) => {
-      if (queryParameters) {
-        queryParameters += ", ";
-      }
-
-      if (index == 0) {
-        queryParameters += "order: [{";
-      }
-
-      // Funcionalidade até a construção do builder de sort.
-      let splitedString = [];
-
-      if (param.field.includes(".")) {
-        splitedString = param.field.split(".");
-
-        let closesCount = 0;
-        splitedString.forEach((entity, index) => {
-
-          if (index < splitedString.length - 1) {
-            queryParameters += `${entity}: {`;
-            closesCount++;
-          } else {
-            queryParameters += `${entity}: ${param.value}`;
-          }
-
-        });
-
-        for (let i = 0; i < closesCount; i++) {
-          queryParameters += "}";
-        }
-      } else {
-        queryParameters += `${param.field}: ${param.value}`;
-      }
-
-      if (index < this.Sort.length - 1) {
-        queryParameters += ", ";
-      } else {
-        queryParameters += "}]";
-      }
-    });
-
-    return this.assembleFilterFields(queryParameters);
   }
 
   private assembleParameters(): string {
@@ -173,89 +117,131 @@ export class Query {
     return this.assemblePagination(queryParameters);
   }
 
-  private assembleComplexFields(complexField: ComplexFilterField): string {
-    let assembledComplexFields = `${complexField.Name}: {`;
+  private assemblePagination(queryParameters?: string): string {
+    if (this.Pagination) {
+      this.Pagination.forEach((param, index) => {
+        if (queryParameters && index == 0) {
+          queryParameters += ", ";
+        }
 
-    if (complexField.ListMatchType) {
-      assembledComplexFields += `${complexField.ListMatchType}: {`;
-    }
+        queryParameters += `${param.field}: ${param.value}`;
 
-    if (complexField.Operators.length > 0) {
-      assembledComplexFields += this.assembleOperators(complexField.Operators);
-    }
-
-    if (complexField.ComplexChildren.length > 0) {
-      complexField.ComplexChildren.forEach(child => {
-        assembledComplexFields += this.assembleComplexFields(child);
-      });
-    }
-
-    if (complexField.Filters.length > 0) {
-      if (complexField.ComplexChildren.length > 0) {
-        assembledComplexFields += ", ";
-      }
-
-      complexField.Filters.forEach((filter, index) => {
-        assembledComplexFields += this.assembleField(filter);
-
-        if (index < complexField.Filters.length - 1) {
-          assembledComplexFields += ", ";
+        if (index < this.Pagination.length - 1) {
+          queryParameters += ", ";
         }
       });
-
     }
 
-    if (complexField.ListMatchType) {
-      assembledComplexFields += " }";
-    }
-
-    assembledComplexFields += "}";
-    return assembledComplexFields;
+    return this.assembleSort(queryParameters);
   }
 
-  private assembleFilterFields(queryParameters?: string): any {
-    queryParameters += queryParameters != "" ? ", " : "";
-
-    if (this.Filter.Fields.length > 0 || this.Filter.Operators.length > 0) {
-      queryParameters += "where: {";
-
-      if (this.Filter.Fields.length > 0) {
-        this.Filter.Fields.forEach((item, index) => {
-          queryParameters += this.assembleField(item);
-
-          if (index < this.Filter.Fields.length - 1) {
-            queryParameters += ", ";
+  private assembleSort(queryParameters?: string): string {
+    
+    if (this.SortByBuilder.Fields.length >= 1) {
+      queryParameters = this.assembleSortByBuilder(queryParameters);
+    } else {
+      this.Sort.forEach((param, index) => {
+        if (queryParameters && index === 0) {
+          queryParameters += ", ";
+        }
+  
+        if (index == 0) {
+          queryParameters += "order: [{";
+        }
+  
+        // Funcionalidade até a construção do builder de sort.
+        let splitedString = [];
+  
+        if (param.field.includes(".")) {
+          splitedString = param.field.split(".");
+  
+          let closesCount = 0;
+          splitedString.forEach((entity, index) => {
+  
+            if (index < splitedString.length - 1) {
+              queryParameters += `${entity}: {`;
+              closesCount++;
+            } else {
+              queryParameters += `${entity}: ${param.value}`;
+            }
+  
+          });
+  
+          for (let i = 0; i < closesCount; i++) {
+            queryParameters += "}";
           }
-        });
-      }
-
-      if (this.Filter.Operators.length > 0) {
-        queryParameters += this.Filter.Fields.length > 0 ? ", " : "";
-        queryParameters += this.assembleOperator();
-      }
-
-      queryParameters += "}";
+        } else {
+          queryParameters += `${param.field}: ${param.value}`;
+        }
+  
+        if (index < this.Sort.length - 1) {
+          queryParameters += ", ";
+        } else {
+          queryParameters += "}]";
+        }
+      });
     }
+    
+    return this.assembleFilterFields(queryParameters);
+  }
+
+  private assembleSortByBuilder(queryParameters? : string) {
+
+    this.SortByBuilder.Fields.forEach((sortField, index) => {
+      if (queryParameters && index === 0) {
+        queryParameters += ", ";
+      }
+
+      if (index === 0) {
+        queryParameters += "order: [{";
+      }
+
+      if (sortField instanceof SortField) {
+        queryParameters += `${sortField.Name}: ${sortField.Order}`
+      } else if (sortField instanceof ComplexSortField) {
+        queryParameters += this.assembleComplexSort(sortField);
+      }
+
+      if (index < this.SortByBuilder.Fields.length - 1) {
+        queryParameters += ", ";
+      } else {
+        queryParameters += "}]";
+      }
+
+    });
 
     return queryParameters;
   }
 
-  private assembleFilterMember(items: any[], withBrackets = false) {
-    let filters = "";
-
-    items.forEach((element: any, index: number) => {
-      filters += withBrackets ? "{" : "";
-
-      filters += this.assembleField(element);
-
-      filters += withBrackets ? "}" : "";
-
-      if (index < items.length - 1) {
-        filters += ", ";
+  private assembleComplexSort(complexField: ComplexSortField) {
+    let assembleComplexSort = "";
+    
+    complexField.Fields.forEach((complex, i) => {
+          
+      if (i === 0) {
+        assembleComplexSort += `${complexField.Name}: {`
       }
-    });
 
-    return filters;
+      if (complex instanceof SortField) {
+        assembleComplexSort += `${complex.Name}: ${complex.Order}`
+      } 
+
+      if (i < complexField.Fields.length - 1) {
+        assembleComplexSort += ", ";
+      } else {
+
+        if (complexField.ComplexChildren.length >= 1) {
+          complexField.ComplexChildren.forEach(complexChildren => {
+            assembleComplexSort += ", ";
+            assembleComplexSort += this.assembleComplexSort(complexChildren);
+          })
+        }
+
+        assembleComplexSort += "}";
+      }
+    })
+
+    return assembleComplexSort;
   }
 
   private assembleField(field: FilterField | FilterListField | ComplexFilterField): any {
@@ -306,13 +292,89 @@ export class Query {
     }
   }
 
-  private mountValue(value: any, isArray: boolean) {
+  private assembleComplexFields(complexField: ComplexFilterField): string {
+    let assembledComplexFields = `${complexField.Name}: {`;
 
-    if (isArray) {
-      return `[${typeof value[0] === "string" ? `"${value}"` : value}]`;
-    } else {
-      return `${typeof value === "string" ? `"${value}"` : value}`;
+    if (complexField.ListMatchType) {
+      assembledComplexFields += `${complexField.ListMatchType}: {`;
     }
+
+    if (complexField.Operators.length > 0) {
+      assembledComplexFields += this.assembleOperators(complexField.Operators);
+    }
+
+    if (complexField.ComplexChildren.length > 0) {
+      complexField.ComplexChildren.forEach(child => {
+        assembledComplexFields += this.assembleComplexFields(child);
+      });
+    }
+
+    if (complexField.Filters.length > 0) {
+      if (complexField.ComplexChildren.length > 0) {
+        assembledComplexFields += ", ";
+      }
+
+      complexField.Filters.forEach((filter, index) => {
+        assembledComplexFields += this.assembleField(filter);
+
+        if (index < complexField.Filters.length - 1) {
+          assembledComplexFields += ", ";
+        }
+      });
+
+    }
+
+    if (complexField.ListMatchType) {
+      assembledComplexFields += " }";
+    }
+
+    assembledComplexFields += "}";
+    return assembledComplexFields;
+  }
+
+  private assembleFilterFields(queryParameters?: string): any {
+    
+    if (this.Filter.Fields.length > 0 || this.Filter.Operators.length > 0) {
+      queryParameters += queryParameters != "" ? ", " : "";
+      queryParameters += "where: {";
+
+      if (this.Filter.Fields.length > 0) {
+        this.Filter.Fields.forEach((item, index) => {
+          queryParameters += this.assembleField(item);
+
+          if (index < this.Filter.Fields.length - 1) {
+            queryParameters += ", ";
+          }
+        });
+      }
+
+      if (this.Filter.Operators.length > 0) {
+        queryParameters += this.Filter.Fields.length > 0 ? ", " : "";
+        queryParameters += this.assembleOperator();
+      }
+
+      queryParameters += "}";
+    }
+
+    return queryParameters;
+  }
+
+  private assembleFilterMember(items: any[], withBrackets = false) {
+    let filters = "";
+
+    items.forEach((element: any, index: number) => {
+      filters += withBrackets ? "{" : "";
+
+      filters += this.assembleField(element);
+
+      filters += withBrackets ? "}" : "";
+
+      if (index < items.length - 1) {
+        filters += ", ";
+      }
+    });
+
+    return filters;
   }
 
   private assembleChild(children: any) {
@@ -363,6 +425,15 @@ export class Query {
     });
 
     return assembled;
+  }
+
+  private mountValue(value: any, isArray: boolean) {
+
+    if (isArray) {
+      return `[${typeof value[0] === "string" ? `"${value}"` : value}]`;
+    } else {
+      return `${typeof value === "string" ? `"${value}"` : value}`;
+    }
   }
 
   //#endregion

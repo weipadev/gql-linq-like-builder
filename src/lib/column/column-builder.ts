@@ -1,8 +1,8 @@
 import { Query } from "../query";
 import { Column } from "./column";
 
-export class ColumnBuilder<T> {
-  public column: Column;
+export class ColumnBuilder<T = any> {
+  private column: Column;
   private parent: Query | Column;
 
   constructor(parentEntity: Query | Column, name: string) {
@@ -37,7 +37,7 @@ export class ColumnBuilder<T> {
    * @returns A new instance of ColumnBuilder
    *
   */
-  public AddEntity<S>(entityName: keyof T): ColumnBuilder<S> {
+  public AddEntity<S = any>(entityName: keyof T): ColumnBuilder<S> {
     let column = new ColumnBuilder<S>(this.column, entityName as string);
 
     return column;

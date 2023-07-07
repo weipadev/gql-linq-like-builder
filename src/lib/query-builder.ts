@@ -2,6 +2,7 @@ import { ColumnBuilder } from "./column/column-builder";
 import { SortEnum } from "./enums";
 import { FilterBuilder } from "./filter/filter-builder";
 import { Query, QueryParameter } from "./query";
+import { SortBuilder } from "./sort/sort-builder";
 
 export class QueryBuilder<T = any> {
   private query: Query;
@@ -37,7 +38,7 @@ export class QueryBuilder<T = any> {
    * @returns A new instance of ColumnBuilder
    *
   */
-  public AddEntity<S>(entityName: keyof T): ColumnBuilder<S> {
+  public AddEntity<S = any>(entityName: keyof T): ColumnBuilder<S> {
 
     let column: ColumnBuilder<S | T> | undefined = this.alreadyInsertedColumns.find(e => e.column.Name === entityName);
 
@@ -114,6 +115,11 @@ export class QueryBuilder<T = any> {
    * @param field - The field to sort by
    * @param value - The SortEnum value
    * @returns This instance of QueryBuilder<T>.
+   * @deprecated `This method is deprecated, its no safety.`
+   * Use {@link CreateSort()} instead to prevent errors and enable new features
+   * like {@link SortBuilder | SortBuilder}
+   * 
+   * * `Property Repetition`: It may repeat the same property in `order`, which throws a error in request.
    *
   */
   public AddSort(field: keyof T, value: SortEnum): QueryBuilder<T> {
@@ -128,12 +134,19 @@ export class QueryBuilder<T = any> {
 
     return this;
   }
+
+  public CreateSort() : SortBuilder<T> {
+
+    let sortBuilder = new SortBuilder<T>(this.query);
+
+    return sortBuilder;
+  }
   
   /**
   *	Already have sorting?
   **/
   public HasSort() {
-    return this.query.Sort.length > 0;
+    // return this.query.Sort.length > 0;
   }
 
   /**

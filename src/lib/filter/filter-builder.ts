@@ -17,7 +17,7 @@ export class Operator {
     public children: Operator[] = [];
 }
 
-export class FilterBuilder<T> {
+export class FilterBuilder<T = any> {
     private parent: Query;
     private filter: Filter;
     operatorBuilder: OperatorBuilder<T> | undefined;
@@ -81,12 +81,12 @@ export class FilterBuilder<T> {
      * @returns A new ComplexFieldBuilder instance
      *
     */
-    public AddEntity<S>(name: keyof T) {
+    public AddEntity<S = any>(name: keyof T) {
         return new ComplexFieldBuilder<S>(this.filter, name as string);
     }
 }
 
-export class OperatorBuilder<T> {
+export class OperatorBuilder<T = any> {
     private parent: Filter | Operator | ComplexFilterField;
     private operator: Operator;
 
@@ -150,12 +150,12 @@ export class OperatorBuilder<T> {
      * @returns New ComplexFieldBuilder
      *
     */
-    public AddEntity<S>(name: keyof T) {
+    public AddEntity<S = any>(name: keyof T) {
         return new ComplexFieldBuilder<S>(this.operator, name as string);
     }
 }
 
-export class ComplexFieldBuilder<T> {
+export class ComplexFieldBuilder<T = any> {
     private parent: Filter | ComplexFilterField | Operator;
     private complexField: ComplexFilterField;
 
