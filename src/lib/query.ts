@@ -214,8 +214,32 @@ export class Query {
       }
 
       if (sortField instanceof SortField) {
-        queryParameters += `${sortField.Name}: ${sortField.Order}`
+
+        if (sortField.Name.includes(".")) {
+          let splitedString = "";
+          sortField.Name.split(".").forEach((fieldSplit, indexSplit, arrSplit) => {
+            splitedString += `${fieldSplit}: {`
+
+            if (indexSplit + 1 == arrSplit.length) {
+              splitedString = splitedString.slice(0, splitedString.length - 2) + ` ${sortField.Order}`;
+              for (let closesIndex = 1; closesIndex < arrSplit.length ; closesIndex++) {
+                splitedString += "}";
+              }             
+            }
+          })
+          queryParameters += splitedString;
+        } else {
+          queryParameters += `${sortField.Name}: ${sortField.Order}`
+        }
+
       } else if (sortField instanceof ComplexSortField) {
+
+        if (!sortField.ComplexChildren.length && !sortField.Fields.length) {
+          queryParameters = queryParameters?.slice(0, queryParameters.lastIndexOf(","));
+          queryParameters += index === this.SortByBuilder.Fields.length - 1 ? "}]" : "";
+          return;
+        }
+
         queryParameters += this.assembleComplexSort(sortField);
       }
 
@@ -232,31 +256,43 @@ export class Query {
 
   protected assembleComplexSort(complexField: ComplexSortField) {
     let assembleComplexSort = "";
-    
-    complexField.Fields.forEach((complex, i) => {
+    let concatedChildrens = [...complexField.Fields, ...complexField.ComplexChildren];
+
+    if (concatedChildrens.length) {
+      assembleComplexSort += `${complexField.Name}: {`;
+      concatedChildrens.forEach((field, index, arr) => {
+  
+        if (field instanceof SortField) {
           
-      if (i === 0) {
-        assembleComplexSort += `${complexField.Name}: {`
-      }
-
-      if (complex instanceof SortField) {
-        assembleComplexSort += `${complex.Name}: ${complex.Order}`
-      } 
-
-      if (i < complexField.Fields.length - 1) {
-        assembleComplexSort += ", ";
-      } else {
-
-        if (complexField.ComplexChildren.length >= 1) {
-          complexField.ComplexChildren.forEach(complexChildren => {
-            assembleComplexSort += ", ";
-            assembleComplexSort += this.assembleComplexSort(complexChildren);
-          })
+          if (field.Name.includes(".")) {
+            let splitedString = "";
+            field.Name.split(".").forEach((fieldSplit, indexSplit, arrSplit) => {
+              splitedString += `${fieldSplit}: {`
+  
+              if (indexSplit + 1 == arrSplit.length) {
+                splitedString = splitedString.slice(0, splitedString.length - 2) + ` ${field.Order}`;
+                for (let closesIndex = 1; closesIndex < arrSplit.length; closesIndex++) {
+                  splitedString += "}";
+                }             
+              }
+            })
+            assembleComplexSort += splitedString;
+          } else {
+            assembleComplexSort += `${field.Name}: ${field.Order}`;
+          }
+  
+        } else if (field instanceof ComplexSortField) {
+          assembleComplexSort += this.assembleComplexSort(field);
         }
+  
+        if (index < arr.length - 1) {
+          assembleComplexSort += ", ";
+        }
+  
+      });
+      assembleComplexSort += "}";
+    }
 
-        assembleComplexSort += "}";
-      }
-    })
 
     return assembleComplexSort;
   }

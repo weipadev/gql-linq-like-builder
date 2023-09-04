@@ -179,9 +179,9 @@ export class ComplexFieldBuilder<T = any> {
      * @returns A new instance of ComplexFieldBuilder
      *
     */
-    public AddEntity(name: keyof T) {
+    public AddEntity<S = any>(name: keyof T) {
 
-        return new ComplexFieldBuilder(this.complexField, name as string);
+        return new ComplexFieldBuilder<S>(this.complexField, name as string);
     }
 
     /**
